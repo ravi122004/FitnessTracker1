@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fitness Quest</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      font-family: 'Roboto', sans-serif;
+      color: #fff;
+    }
+    header {
+      background: rgba(17, 24, 39, 0.9);
+      border-bottom: 2px solid #facc15;
+    }
+    .card {
+      background: #1f2937;
+      border: 2px solid #10b981;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      transition: transform 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+    }
+    .progress-bar {
+      background: #1f2937;
+      border: 2px solid #facc15;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: #facc15;
+      height: 100%;
+      transition: width 1s ease-in-out;
+    }
+    .badge {
+      background: #3b82f6;
+      border-radius: 8px;
+      padding: 4px 8px;
+      margin: 2px;
+    }
+    .game-button {
+      background: #10b981;
+      border-radius: 8px;
+      padding: 8px 16px;
+      transition: transform 0.2s;
+    }
+    .game-button:hover {
+      transform: translateY(-2px);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: #1f2937;
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #facc15;
+      max-width: 400px;
+      width: 90%;
+    }
+    .challenge-item {
+      background: #374151;
+      border: 2px solid #10b981;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .challenge-item:hover {
+      background: #4b5563;
+    }
+    .challenge-item.selected {
+      background: #10b981;
+      color: #fff;
+    }
+    .avatar {
+      border: 2px solid #facc15;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <header class="p-4 flex justify-between items-center sticky top-0">
+    <h1 class="text-xl text-yellow-400">🏋️‍♂️ Fitness Quest</h1>
+    <div class="flex space-x-2">
+      <button id="resetBtn" class="game-button text-black bg-yellow-400">Reset</button>
+      <button id="logoutBtn" class="game-button bg-red-500">Exit</button>
+    </div>
+  </header>
+
+  <main class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="card p-4">
+      <h2 class="text-lg text-green-400 mb-2">🧙‍♂️ Profile</h2>
+      <div class="flex items-center mb-2">
+        <img id="userAvatar" src="https://api.dicebear.com/9.x/pixel-art/svg?seed=Arav" alt="Avatar" class="avatar w-12 h-12 mr-2">
+        <div>
+          <p><strong>Name:</strong> <span id="userName">Arav</span> <button id="editProfile" class="text-blue-400 text-sm">[Edit]</button></p>
+          <p><strong>Level:</strong> <span id="userLevel">3</span></p>
+          <p><strong>Streak:</strong> <span id="streakCount">0 days 🔥</span></p>
+        </div>
+      </div>
+      <p><strong>XP:</strong> <span id="currentXP">250</span> / 300</p>
+      <div class="progress-bar h-4 w-full mt-2">
+        <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+      </div>
+      <p><strong>Badges:</strong></p>
+      <div id="badges" class="flex flex-wrap gap-2 mt-2"></div>
+    </div>
+
+    <div class="card p-4">
+      <h2 class="text-lg text-green-400 mb-2">🏆 Leaderboard</h2>
+      <div id="leaderboard" class="text-sm"></div>
+    </div>
+
+    <div class="card p-4">
+      <h2 class="text-lg text-green-400 mb-2">📜 Achievements</h2>
+      <div id="achievementsLog" class="max-h-40 overflow-y-auto text-sm"></div>
+    </div>
+
+    <div class="card p-4 lg:col-span-2">
+      <h2 class="text-lg text-green-400 mb-2">⚔️ Quests</h2>
+      <select id="questFilter" class="bg-gray-700 text-white p-2 rounded mb-2">
+        <option value="all">All</option>
+        <option value="Strength">Strength</option>
+        <option value="Cardio">Cardio</option>
+        <option value="Mindfulness">Mindfulness</option>
+      </select>
+      <div id="challengeList" class="max-h-60 overflow-y-auto"></div>
+      <button id="startChallenge" class="game-button mt-2 w-full bg-green-600">Start Quest</button>
+    </div>
+  </main>
+
+  <div id="editProfileModal" class="modal">
+    <div class="modal-content">
+      <h2 class="text-lg text-yellow-400 mb-2">Edit Profile</h2>
+      <label for="editName" class="block text-sm">Name:</label>
+      <input id="editName" type="text" class="bg-gray-700 text-white p-2 rounded w-full" value="Arav">
+      <label for="editAvatar" class="block text-sm mt-2">Avatar Seed:</label>
+      <input id="editAvatar" type="text" class="bg-gray-700 text-white p-2 rounded w-full" value="Arav">
+      <div class="flex justify-end space-x-2 mt-4">
+        <button id="saveProfile" class="game-button bg-green-600">Save</button>
+        <button id="cancelProfile" class="game-button bg-red-600">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <h2 class="text-lg text-yellow-400 mb-2">🏆 Quest Complete!</h2>
+      <p id="modalMessage"></p>
+      <button id="closeModal" class="game-button mt-2 bg-blue-600">Claim Rewards</button>
+    </div>
+  </div>
+
+  <script>
+    const challenges = [
+      { id: 1, name: "30-Min HIIT", xp: 50, badge: "Energizer", category: "Strength" },
+      { id: 2, name: "5K Run", xp: 70, badge: "Speedster", category: "Cardio" },
+      { id: 3, name: "Yoga", xp: 30, badge: "Zen", category: "Mindfulness" },
+      { id: 4, name: "100 Push-Ups", xp: 60, badge: "Iron Arm", category: "Strength" },
+    ];
+  
+    let user = JSON.parse(localStorage.getItem("user")) || {
+      name: "Arav",
+      level: 3,
+      xp: 250,
+      badges: ["Energizer"],
+      completedChallenges: [],
+      streak: 0,
+      lastLogin: null,
+      avatarSeed: "Arav",
+      achievements: []
+    };
+  
+    let leaderboardData = [
+      { name: "Arav", xp: 250, level: 3 },
+      { name: "HeroX", xp: 450, level: 4 },
+      { name: "FitGuru", xp: 320, level: 3 },
+    ];
+  
+    $(document).ready(function() {
+      updateUserUI();
+      renderChallenges();
+      renderLeaderboard();
+      renderAchievements();
+      updateStreak();
+  
+      $("#resetBtn").click(() => {
+        if (confirm("Reset all progress?")) {
+          user = {
+            name: "Arav",
+            level: 3,
+            xp: 250,
+            badges: ["Energizer"],
+            completedChallenges: [],
+            streak: 0,
+            lastLogin: null,
+            avatarSeed: "Arav",
+            achievements: []
+          };
+          // Reset user's leaderboard entry
+          leaderboardData = leaderboardData.filter(u => u.name !== user.name);
+          leaderboardData.push({ name: user.name, xp: user.xp, level: user.level });
+          localStorage.setItem("user", JSON.stringify(user));
+          updateUserUI();
+          renderChallenges();
+          renderLeaderboard();
+          renderAchievements();
+          $("#progressFill").animate({ width: `${(user.xp / 300) * 100}%` }, 1000);
+        }
+      });
+  
+      $("#logoutBtn").click(() => {
+        localStorage.removeItem("user");
+        window.location.reload();
+      });
+  
+      $("#startChallenge").click(() => {
+        const selected = $(".challenge-item.selected");
+        if (!selected.length) return alert("Select a quest!");
+        const challenge = challenges.find(c => c.id == selected.data("id"));
+        if (challenge) completeChallenge(challenge);
+      });
+  
+      $(document).on("click", ".challenge-item", function() {
+        $(".challenge-item").removeClass("selected");
+        $(this).addClass("selected");
+      });
+  
+      $("#questFilter").change(renderChallenges);
+  
+      $("#editProfile").click(() => {
+        $("#editName").val(user.name);
+        $("#editAvatar").val(user.avatarSeed);
+        $("#editProfileModal").fadeIn();
+      });
+  
+      $("#saveProfile").click(() => {
+        const name = $("#editName").val().trim();
+        const avatarSeed = $("#editAvatar").val().trim();
+        if (name && avatarSeed) {
+          // Update leaderboard if name changes
+          const oldName = user.name;
+          user.name = name;
+          user.avatarSeed = avatarSeed;
+          leaderboardData = leaderboardData.map(u => u.name === oldName ? { ...u, name } : u);
+          localStorage.setItem("user", JSON.stringify(user));
+          updateUserUI();
+          renderLeaderboard();
+          $("#editProfileModal").fadeOut();
+        } else {
+          alert("Enter name and avatar seed!");
+        }
+      });
+  
+      $("#cancelProfile, #closeModal").click(function() {
+        $(this).closest(".modal").fadeOut();
+      });
+  
+      $(".modal").on("keydown", e => {
+        if (e.key === "Escape") $(e.target).closest(".modal").fadeOut();
+      });
+    });
+  
+    function updateStreak() {
+      const today = new Date().toISOString().split('T')[0];
+      if (user.lastLogin !== today) {
+        const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0];
+        user.streak = user.lastLogin === yesterday ? user.streak + 1 : 1;
+        user.lastLogin = today;
+        localStorage.setItem("user", JSON.stringify(user));
+      }
+      $("#streakCount").text(`${user.streak} days 🔥`);
+    }
+  
+    function renderChallenges() {
+      const filter = $("#questFilter").val();
+      const filtered = filter === "all" ? challenges : challenges.filter(c => c.category === filter);
+      let html = filtered.map(c => `
+        <div class="challenge-item p-2 mb-2 ${user.completedChallenges.includes(c.id) ? "opacity-50" : ""}" data-id="${c.id}">
+          <p class="font-bold">${c.name}</p>
+          <p>Reward: +${c.xp} XP</p>
+          ${user.completedChallenges.includes(c.id) ? "<p>Completed</p>" : ""}
+        </div>
+      `).join("");
+      $("#challengeList").html(html || "<p>No quests!</p>");
+    }
+  
+    function renderLeaderboard() {
+      // Update or add user's entry in leaderboardData
+      const userEntry = leaderboardData.find(u => u.name === user.name);
+      if (userEntry) {
+        userEntry.xp = user.xp;
+        userEntry.level = user.level;
+      } else {
+        leaderboardData.push({ name: user.name, xp: user.xp, level: user.level });
+      }
+  
+      // Sort by XP (descending), then level (descending)
+      leaderboardData.sort((a, b) => {
+        if (b.xp !== a.xp) return b.xp - a.xp;
+        return b.level - a.level;
+      });
+  
+      // Render top 3
+      const html = leaderboardData.slice(0, 3).map((entry, i) => `
+        <div class="p-2 flex justify-between">
+          <span>${i + 1}. ${entry.name}</span>
+          <span>Level ${entry.level} | ${entry.xp} XP</span>
+        </div>
+      `).join("");
+      $("#leaderboard").html(html || "<p>No leaderboard data!</p>");
+    }
+  
+    function renderAchievements() {
+      const html = user.achievements.slice().reverse().map(a => `
+        <div class="p-2 border-b border-gray-600">
+          <p>${a.message}</p>
+          <p class="text-gray-400 text-xs">${a.date}</p>
+        </div>
+      `).join("") || "<p>No achievements!</p>";
+      $("#achievementsLog").html(html);
+    }
+  
+    function completeChallenge(challenge) {
+      if (user.completedChallenges.includes(challenge.id)) return alert("Quest already completed!");
+      user.xp += challenge.xp;
+      user.completedChallenges.push(challenge.id);
+      user.achievements.push({ message: `Completed "${challenge.name}"!`, date: new Date().toLocaleString() });
+      if (user.xp >= 300) {
+        user.level += 1;
+        user.xp %= 300;
+        user.achievements.push({ message: `Reached Level ${user.level}!`, date: new Date().toLocaleString() });
+      }
+      if (!user.badges.includes(challenge.badge)) user.badges.push(challenge.badge);
+      localStorage.setItem("user", JSON.stringify(user));
+      updateUserUI();
+      renderChallenges();
+      renderLeaderboard(); // Ensure leaderboard updates
+      renderAchievements();
+      $("#modalMessage").html(`Earned ${challenge.xp} XP!<br>Unlocked "${challenge.badge}" badge!`);
+      $("#modal").fadeIn();
+      confetti({ particleCount: 100, spread: 70 });
+      $("#progressFill").animate({ width: `${(user.xp / 300) * 100}%` }, 1000);
+    }
+
+    function updateUserUI() {
+      $("#userName").text(user.name);
+      $("#userLevel").text(user.level);
+      $("#currentXP").text(user.xp);
+      $("#badges").html(user.badges.map(b => `<span class="badge">${b}</span>`).join(""));
+      $("#streakCount").text(`${user.streak} days 🔥`);
+      $("#userAvatar").attr("src", `https://api.dicebear.com/9.x/pixel-art/svg?seed=${user.avatarSeed}`);
+      $("#progressFill").css("width", `${(user.xp / 300) * 100}%`);
+    }
+  </script>
+</body>
+</html>

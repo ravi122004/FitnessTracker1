@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ navOpen: false }" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fitness & Wellness Gamification</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <style>
+    .slide {
+      transition: opacity 1s ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 font-sans relative" x-data>
+  <header class="fixed top-0 w-full flex items-center justify-between px-6 py-4 z-50 bg-black bg-opacity-30 backdrop-blur-md">
+    <div class="text-2xl font-extrabold text-yellow-300">FitArena</div>
+    <nav class="hidden md:flex space-x-6 text-white font-medium">
+      <a href="#" class="hover:text-teal-300 transition">HOME</a>
+      <a href="blogs.html" class="hover:text-teal-300 transition">BLOGS</a>
+      <a href="about.html" class="hover:text-teal-300 transition">ABOUT</a>
+      <a href="contact.html" class="hover:text-teal-300 transition">CONTACT</a>
+    </nav>
+    <div class="md:hidden">
+      <button @click="navOpen = !navOpen">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 6h16.5m-16.5 6h16.5" />
+        </svg>
+      </button>
+    </div>
+    <div class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-500 transition hidden md:block">
+      <a href="login.php">Login</a>
+    </div>
+  </header>
+  <div x-show="navOpen" class="md:hidden absolute top-16 left-0 w-full bg-black bg-opacity-80 text-white flex flex-col space-y-4 p-4">
+    <a href="#">HOME</a>
+    <a href="#  ">BLOGS</a>
+    <a href="#">ABOUT US</a>
+    <a href="#">CONTACT US</a>
+  </div>
+
+  <section class="relative h-screen overflow-hidden pt-20">
+    <div class="absolute inset-0 slide bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1558611848-73f7eb4001a1?auto=format&fit=crop&w=1470&q=80'); opacity: 1;"></div>
+    <div class="absolute inset-0 slide bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=1470&q=80'); opacity: 0;"></div>
+    <div class="absolute inset-0 bg-black bg-opacity-60 z-10"></div>
+    <div class="relative z-20 flex flex-col justify-center items-start h-full px-8 md:px-20 text-white">
+      <h1 class="text-4xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">Transform Your Fitness Journey</h1>
+      <h2 class="text-xl md:text-2xl font-medium mb-6 drop-shadow-md">Gamify Your Goals With  Power</h2>
+      <a href="#" class="px-6 py-3 border-2 border-yellow-400 rounded-full hover:bg-yellow-500 transition font-semibold">Explore More</a>
+      <div class="flex items-center space-x-2 mt-8">
+        <div class="w-6 h-1 bg-yellow-400 rounded indicator"></div>
+        <div class="w-6 h-1 bg-gray-500 rounded indicator"></div>
+      </div>
+    </div>
+  </section>
+  <section class="bg-white text-gray-800 py-16" data-aos="fade-up">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-3xl font-bold mb-10 text-center">Real Users. Real Transformations.</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="p-6 bg-gray-100 rounded-lg shadow-lg">
+          <p>"This app changed my life! I've never been this motivated before."</p>
+          <div class="mt-4 font-bold">– Anjali, 27</div>
+        </div>
+        <div class="p-6 bg-gray-100 rounded-lg shadow-lg">
+          <p>"Tracking my progress and competing with friends is so fun!"</p>
+          <div class="mt-4 font-bold">– Raj, 19</div>
+        </div>
+        <div class="p-6 bg-gray-100 rounded-lg shadow-lg">
+          <p>"Feels like a game, but the rewards are real. I'm fitter than ever."</p>
+          <div class="mt-4 font-bold">– Priya, 22</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer class="bg-gray-900 text-white py-6">
+    <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+      <p class="text-sm">&copy; 2025 FitArena. All rights reserved.</p>
+      <div class="flex space-x-4">
+        <a href="https://www.instagram.com" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" class="w-8 h-8 hover:scale-110 transition"></a>
+        <a href="https://www.facebook.com" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" class="w-8 h-8 hover:scale-110 transition"></a>
+        <a href="https://www.linkedin.com" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" class="w-8 h-8 hover:scale-110 transition"></a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    $(document).ready(function () {
+      let slides = $(".slide");
+      let indicators = $(".indicator");
+      let current = 0;
+      function showNextSlide() {
+        slides.eq(current).css("opacity", "0");
+        indicators.eq(current).removeClass("bg-yellow-400").addClass("bg-gray-500");
+        current = (current + 1) % slides.length;
+        slides.eq(current).css("opacity", "1");
+        indicators.eq(current).removeClass("bg-gray-500").addClass("bg-yellow-400");
+      }
+      setInterval(showNextSlide, 4000);
+    });
+    AOS.init();
+  </script>
+</body>
+</html>
